@@ -53,17 +53,25 @@ app.get('/', (req,res) =>{
   
 
     if(req.session.user_id) {
-        let sql = `select * from users where userName = '${req.session.user_id}'`;
+        let sql = `select * , FORMAT(usersWage,2) as formatWage from users where userName = '${req.session.user_id}'`;
+        // let sql = `select *, FORMAT(totalBreakTime,2) as formated from hours where userName='${req.session.user_id}'`
         conn.query(sql, (err,userRow) =>{
             if(err) {
                 console.log(err.message);
             }
 
             let userId = userRow[0].userId;
-            let sqlData = `select * from hours where userId=${userId}`
+            let usersWage = userRow[0].usersWage;
+            // let sqlData = `select * from hours where userId=${userId}`
+            let sqlData = `SELECT *, format(totalHour,2) as hour, format(totalBreakTime,2) as break, (totalHour - totalBreakTime) as finalHour from hours where userId='${userId}'`
+
             conn.query(sqlData,(err,rows) =>{
+             
                 if(err) throw err.message;
                 // res.send(rows)
+                for(i in rows.length) {
+                } 
+                
                 res.render('home', {session:req.session, model:rows})
             })
             
@@ -87,15 +95,23 @@ app.post('/login',(req,res, next) =>{
 
     
         // let query = `select * from users where userName='${username}' and userPassword='${password}'`;
-        let sql =  `select userPassword from users where userName ='${username}';`;
+        let sql =  `select userPassword from users where userName ='${username}'`;
             conn.query(sql, (err,rows) =>{
                 if(err) throw err.message;
 
                 if(rows.length > 0){
                     let hash = rows[0].userPassword;
                     bcrypt.compare(password,hash, (err,result) =>{
-                        req.session.user_id = username;
-                        res.redirect('/')
+                        if(result) {
+                            req.session.user_id = username;
+                            res.redirect('/')
+                        }
+
+                        else{
+                        
+                            res.send("<script>alert(`UserName or password are incorrect`); window.location=`/`;</script>")
+                        }
+                       
                     })
                 }
 
@@ -132,11 +148,12 @@ app.post('/registerNewUser', (req,res,next) =>{
                 bcrypt.hash(req.body.password, saltRounds,(err,hash) =>{
                     if(err) throw err.message;
                     let sql = `insert into users(userName, userPassword, usersWage, usersDeduction, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction}, '${req.body.email}')`
-                    conn.query(sql,(err,rows) =>{
-                        if(err) throw err.message;
+                    conn.commit(sql)
+                    // conn.query(sql,(err,rows) =>{
+                    //     if(err) throw err.message;
 
-                        res.send("<script>alert(`User has been created please log In`); window.location=`/`;</script>")
-                    })
+                    res.send("<script>alert(`User has been created please log In`); window.location=`/`;</script>")
+                    // })
                 })
 
 
@@ -152,6 +169,59 @@ app.get('/logout', (req,res,next) =>{
         res.redirect('/')
 })
 
+
+app.get('/dropTable', (req,res,next) =>{
+    if(req.session.user_id) {
+        res.render("dropTable")
+    }
+
+    else{
+        res.redirect('/')
+    }
+})
+
+
+app.post('/dropAllData',(req,res,next) =>{
+    if(req.session.user_id) {
+
+        if(req.body.password) {
+            let sql =  `select * from users where userName ='${req.session.user_id}'`;
+
+            conn.query(sql, (err,rows) =>{
+                if(err) throw err.message;
+
+                if(rows.length > 0){
+                    let hash = rows[0].userPassword;
+                    bcrypt.compare(req.body.password,hash, (err,result) =>{
+                        if(result) {
+                            let sqlDrop = `delete from hours where userId=${rows[0].userId}`
+                            conn.commit(sqlDrop);
+                            res.redirect('/')
+                            
+                        }
+
+                        else{
+                        
+                            res.send("<script>alert(`password is incorrect`); window.location=`/`;</script>")
+                        }
+                       
+                    })
+                }
+
+                else{
+                    res.send("<script>alert(`password is incorrect`); window.location=`/`;</script>")
+                }
+
+                
+            })
+        }
+
+    }
+
+    else{
+        res.redirect('/')
+    }
+})
 
 
 
@@ -173,21 +243,37 @@ app.post('/addNewHour',(req,res,next) =>{
         let sql = `select * from users where userName = '${req.session.user_id}'`
         conn.query(sql,(err,rows) =>{
             if(req.body.hours && req.body.breakTime) {
-                let sql = `insert into hours (totalHour, totalBreakTime, userId, totalEarned) values (${req.body.hours}, ${req.body.breakTime}, ${rows[0].userId}, ${req.body.hours * rows[0].usersWage})`
-                conn.commit(sql);
-                res.redirect('/')
+
+                if(req.body.type == "Hours") {
+                    //TODO:Got a problem in here error(Colum out of range)
+                    let hours = req.body.breakTime;
+                    let totalMoney = (req.body.hours - hours) * rows[0].usersWage;
+                    let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, totalEarned) values (${req.body.hours}, ${req.body.breakTime}, ${rows[0].userId}, ${totalMoney.toFixed(2)})`
+                    conn.commit(sqlHours)
+                    res.redirect('/')
+                    
+                }
+
+                else{
+
+                    let minutes = req.body.breakTime / 100;
+                    let totalMoney = (req.body.hours - minutes) * rows[0].usersWage;
+                    console.log(totalMoney)
+                    let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, totalEarned) values (${req.body.hours}, ${minutes.toFixed(2)}, ${rows[0].userId}, ${totalMoney.toFixed(2)})`
+                    conn.commit(sqlMinutes)
+                    res.redirect('/')
+                }
             }
 
     
             else {
-                let sql = `insert into hours (totalHour, totalBreakTime, userId, totalEarned) values (${req.body.hours}, ${0}, ${rows[0].userId}, ${req.body.hours * rows[0].usersWage})`
-                res.send(sql)
+                // let sql = `insert into hours (totalHour, totalBreakTime, userId, totalEarned) values (${req.body.hours}, ${0}, ${rows[0].userId}, ${req.body.hours * rows[0].usersWage})`
+                
 
                 if(req.body.hours > 5) {
                     //inclase i want to obligar user to enter break
                 }
-                conn.commit(sql)
-                // res.redirect('/')
+                
             }
 
         })

@@ -1,6 +1,15 @@
+
+
+
+
+
 <form method="post" action="addNewHour">
     <input type="number" required name="hours" step="0.01" placeholder="Enter amount of hours worked"/>
-    <input type="number" name="breakTime" step="0.01" placeholder="Enter the amount of time if break (.30 min)"/>
+    <input type="number" name="breakTime" step="0.01" placeholder="Enter the amount of time if break (.30 min, .15 min) (1 hour)"/>
+    <select name="type" id="">
+        <option value="minutes">Minutes</option>
+        <option value="Hours">Hours</option>
+    </select>
     <button type="submit">Add Hour</button>
 
 </form>
