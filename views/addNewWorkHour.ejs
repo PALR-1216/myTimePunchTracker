@@ -3,12 +3,12 @@
 
 
 
-<form method="post" action="addNewHour">
+<form method="post" action="/addNewHour/<%=USER%>">
     <input type="number" required name="hours" step="0.01" placeholder="Enter amount of hours worked"/>
-    <input type="number" name="breakTime" step="0.01" placeholder="Enter the amount of time if break (.30 min, .15 min) (1 hour)"/>
+    <input type="number" name="breakTime" step="0.01" placeholder="Enter your Break time"/>
     <select name="type" id="">
         <option value="minutes">Minutes</option>
-        <option value="Hours">Hours</option>
+        <option selected value="Hours">Hours</option>
     </select>
     <button type="submit">Add Hour</button>
 

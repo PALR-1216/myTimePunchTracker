@@ -1,3 +1,5 @@
+
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -40,7 +42,7 @@
           <tr>
             <th scope="col">Hours</th>
             <th scope="col">Break Time</th>
-            <th scope="col">Earned</th>
+            <th scope="col">Earned (bruto)</th>
           </tr>
         </thead>
         <tbody>
@@ -49,7 +51,7 @@
           <tr>
 
             <th scope="row"><%=model[i].totalHour%></th>
-            <td><%=model[i].totalHour%> - <%=model[i].break%> = <%=model[i].finalHour%></td>
+            <td><%=model[i].totalBreakTime%></td>
             <td>$<%=model[i].totalEarned%></td>
           </tr>
           <%}%>
