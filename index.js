@@ -63,18 +63,25 @@ app.get('/', (req,res) =>{
 
             let userId = userRow[0].userId;
             let usersWage = userRow[0].usersWage;
+            let totalHours
+            let totalMoney;
             let usersDeduction = userRow[0].usersDeduction;
             // let sqlData = `select * from hours where userId=${userId}`
+            let sqlTotal = `select SUM(totalHour) as SumHours, (SUM(totalhour) * ${usersWage}) as totalMoney from hours where userId=${userId}`;
+            conn.query(sqlTotal,(err,totalRows) =>{
+                if(err) throw err;
+                totalHours = totalRows[0].SumHours;
+                totalMoney = totalRows[0].totalMoney;
+
+            })
             let sqlData = `SELECT totalHour, totalBreakTime, ((totalHour - totalBreakTime) * ${usersWage}) as totalEarned  from hours where userId='${userId}'`
 
             conn.query(sqlData,(err,rows) =>{
              
                 if(err) throw err.message;
                 // res.send(rows)
-                for(i in rows.length) {
-                } 
-                
-                res.render('home', {session:req.session, model:rows})
+               
+                res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalMoney})
             })
             
         })
