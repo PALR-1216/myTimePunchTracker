@@ -68,26 +68,24 @@ app.get('/', (req,res) =>{
             let usersDeduction = userRow[0].usersDeduction;
             // let sqlData = `select * from hours where userId=${userId}`
             // let sqlTotal = `select SUM(totalHour) as SumHours, DECIMAL((totalhour * ${usersWage}),2) as totalMoney from hours where userId=${userId} group by totalHour`;
-            let sqlTotalHours = `select SUM(totalHour) as SumHours from hours where userId=${userId};`; 
+            let sqlTotalHours = `select Format(SUM(totalHour),2) as SumHours from hours where userId=${userId};`; 
+            
             conn.query(sqlTotalHours,(err,totalRows) =>{
                 if(err) throw err;
                 totalHours = totalRows[0].SumHours;
-                let sqltotalMoney = `select (${totalHours} * ${usersWage}) as totalMoney;`
+                let sqltotalMoney = `select Format((${totalHours} * ${usersWage}),2) as totalMoney;`
+
                 conn.query(sqltotalMoney,(err,rows) =>{
                     if(err) throw err.message;
                     totalEarned = rows[0].totalMoney
 
-
-
-
                     let sqlData = `SELECT totalHour, totalBreakTime, FORMAT(((totalHour - totalBreakTime) * ${usersWage} ),2) as totalEarned , dateAdded from hours where userId='${userId}'`
-
                     conn.query(sqlData,(err,rows) =>{
                      
                         if(err) throw err.message;
                         // res.send(rows)
                        
-                        res.render('home', {session:req.session, model:rows, totalHours:totalHours.toFixed(2), totalMoney:totalEarned.toFixed(2)})
+                        res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalEarned})
                     })
                 })
 
