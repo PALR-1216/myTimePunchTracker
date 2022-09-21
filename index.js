@@ -90,12 +90,8 @@ app.get('/', (req,res) =>{
                 })
 
             })
-          
            
-            
         })
-      
-
     }
 
     else{
@@ -165,8 +161,21 @@ app.post('/registerNewUser', (req,res,next) =>{
 
                 bcrypt.hash(req.body.password, saltRounds,(err,hash) =>{
                     if(err) throw err.message;
+                    if(!req.body.usersDeduction) {
+                        // res.json("No Deduc")
+                        let sql = `insert into users(userName, userPassword, usersWage, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, '${req.body.email}')`
+                        conn.commit(sql)
+
+                    }
+                    else{
+
                     let sql = `insert into users(userName, userPassword, usersWage, usersDeduction, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction}, '${req.body.email}')`
                     conn.commit(sql)
+
+                    }
+
+
+                
                     // conn.query(sql,(err,rows) =>{
                     //     if(err) throw err.message;
 
@@ -183,7 +192,7 @@ app.post('/registerNewUser', (req,res,next) =>{
 
 app.get('/UsersProfile/:userId',(req,res) =>{
     if(req.session.user_id) {
-        let sql = `select Format(usersWage,2) as usersWage, userName, userEmail from users where userName = '${req.session.user_id}'`;
+        let sql = `select Format(usersWage,2) as usersWage, userName, usersDeduction, userEmail from users where userName = '${req.session.user_id}'`;
         conn.query(sql, (err,rows) =>{
             if(err) throw err;
 
