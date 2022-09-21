@@ -79,7 +79,7 @@ app.get('/', (req,res) =>{
                     if(err) throw err.message;
                     totalEarned = rows[0].totalMoney
 
-                    let sqlData = `SELECT totalHour, totalBreakTime, FORMAT(((totalHour - totalBreakTime) * ${usersWage} ),2) as totalEarned , dateAdded from hours where userId='${userId}'`
+                    let sqlData = `SELECT totalHour, totalBreakTime, FORMAT((totalHour * ${usersWage} ),2) as totalEarned , dateAdded from hours where userId='${userId}'`
                     conn.query(sqlData,(err,rows) =>{
                      
                         if(err) throw err.message;
