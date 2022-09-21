@@ -23,6 +23,7 @@
     <%}%>
 
     <a href="/addHour">add new Work hour</a>
+    <a href="/UsersProfile/<%=session.user_id%>">My Profile</a>
 
 
 <%if(model.length == 0 ){%>
@@ -46,6 +47,7 @@
             <th scope="col">Hours</th>
             <th scope="col">Break Time</th>
             <th scope="col">Earned (bruto)</th>
+            <th scope="col">Date Added</th>
           </tr>
         </thead>
         <tbody>
@@ -56,6 +58,7 @@
             <th scope="row"><%=model[i].totalHour%></th>
             <td><%=model[i].totalBreakTime%></td>
             <td>$<%=model[i].totalEarned%></td>
+            <td><%=model[i].dateAdded%></td>
           </tr>
           <%}%>
         </tbody>

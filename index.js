@@ -64,25 +64,36 @@ app.get('/', (req,res) =>{
             let userId = userRow[0].userId;
             let usersWage = userRow[0].usersWage;
             let totalHours
-            let totalMoney;
+            let totalEarned;
             let usersDeduction = userRow[0].usersDeduction;
             // let sqlData = `select * from hours where userId=${userId}`
-            let sqlTotal = `select SUM(totalHour) as SumHours, (SUM(totalhour) * ${usersWage}) as totalMoney from hours where userId=${userId}`;
-            conn.query(sqlTotal,(err,totalRows) =>{
+            // let sqlTotal = `select SUM(totalHour) as SumHours, DECIMAL((totalhour * ${usersWage}),2) as totalMoney from hours where userId=${userId} group by totalHour`;
+            let sqlTotalHours = `select SUM(totalHour) as SumHours from hours where userId=${userId};`; 
+            conn.query(sqlTotalHours,(err,totalRows) =>{
                 if(err) throw err;
                 totalHours = totalRows[0].SumHours;
-                totalMoney = totalRows[0].totalMoney;
+                let sqltotalMoney = `select (${totalHours} * ${usersWage}) as totalMoney;`
+                conn.query(sqltotalMoney,(err,rows) =>{
+                    if(err) throw err.message;
+                    totalEarned = rows[0].totalMoney
+
+
+
+
+                    let sqlData = `SELECT totalHour, totalBreakTime, FORMAT(((totalHour - totalBreakTime) * ${usersWage} ),2) as totalEarned , dateAdded from hours where userId='${userId}'`
+
+                    conn.query(sqlData,(err,rows) =>{
+                     
+                        if(err) throw err.message;
+                        // res.send(rows)
+                       
+                        res.render('home', {session:req.session, model:rows, totalHours:totalHours.toFixed(2), totalMoney:totalEarned.toFixed(2)})
+                    })
+                })
 
             })
-            let sqlData = `SELECT totalHour, totalBreakTime, ((totalHour - totalBreakTime) * ${usersWage}) as totalEarned  from hours where userId='${userId}'`
-
-            conn.query(sqlData,(err,rows) =>{
-             
-                if(err) throw err.message;
-                // res.send(rows)
-               
-                res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalMoney})
-            })
+          
+           
             
         })
       
@@ -170,6 +181,40 @@ app.post('/registerNewUser', (req,res,next) =>{
 
     })
 
+})
+
+app.get('/UsersProfile/:userId',(req,res) =>{
+    if(req.session.user_id) {
+        let sql = `select Format(usersWage,2) as usersWage, userName, userEmail from users where userName = '${req.session.user_id}'`;
+        conn.query(sql, (err,rows) =>{
+            if(err) throw err;
+
+            res.render("userProfile", {usersInfo:rows})
+
+        })
+
+      
+    }
+
+    else{
+        res.redirect('/')
+    }
+})
+
+app.get('/EditProfile', (req,res) =>{
+    if(req.session.user_id) {
+        let sql = `select * from users where userName = '${req.session.user_id}'`;
+        conn.query(sql,(err,rows) =>{
+            if(err) throw err;
+
+            res.render("editProfile", {model:rows})
+        })
+
+    }
+
+    else{
+        res.redirect('/')
+    }
 })
 
 app.get('/logout', (req,res,next) =>{
@@ -263,7 +308,7 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
         
         if(req.body.hours && req.body.breakTime) {
             if(req.body.type == "Hours"){
-                let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${req.params.userID}, '${AllDate}')`
+                let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${req.params.userID}, '${AllDate}')`
                 conn.query(sqlHours,(err,rows) =>{
                     if(err) throw err;
                 })
@@ -275,7 +320,7 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
             else{
                 let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
 
-                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours}, ${totalMinutes}, ${req.params.userID}, '${AllDate}')`
+                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - tot}, ${totalMinutes}, ${req.params.userID}, '${AllDate}')`
                 conn.query(sqlMinutes, (err,rows) =>{
                     if(err) throw err;
                 })
@@ -307,8 +352,6 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
         res.redirect('/')
     }
 }) 
-
-
 
 
 
