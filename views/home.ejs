@@ -17,7 +17,7 @@
 
 
     <% if(session.user_id){%>
-        <h1>welcome user <%=session.user_id%></h1>
+        <h1>welcome user <strong><%=session.user_id%></strong></h1>
         <a href="/logout">LogOut</a>
 
     <%}%>
@@ -37,7 +37,7 @@
 
   <div class="totalContainer">
     <h1>Total Hours -<%=totalHours%> </h1>
-    <h1>Total $ - <%=totalMoney%></h1>
+    <h1>Net Total $ - <%=totalMoney%></h1>
   </div>
 
 
@@ -48,6 +48,7 @@
             <th scope="col">Break Time</th>
             <th scope="col">Earned (bruto)</th>
             <th scope="col">Date Added</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -56,9 +57,10 @@
           <tr>
 
             <th scope="row"><%=model[i].totalHour%></th>
-            <td><%=model[i].totalBreakTime%></td>
+              <td><%=model[i].totalBreakTime  || "NONE"%></td>
             <td>$<%=model[i].totalEarned%></td>
             <td><%=model[i].dateAdded%></td>
+            <td><a href="/DeleteRow/<%=model[i].hourId%>/<%=model[i].userId%>"><strong style="color: red; text-decoration: none; font-size: large; text-align: center" >X</strong></a></td>
           </tr>
           <%}%>
         </tbody>
@@ -89,6 +91,10 @@
 </html>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+    *{
+      font-family: 'Poppins', sans-serif;
+    }
     .container .noDataHeader{
         text-align: center;
         width: 100%;
@@ -101,4 +107,14 @@
         align-self: center;
         align-content: center;
     }
+
+
+      @media only screen and (max-width: 600px) {
+        .totalContainer{
+          text-align: center;
+          font-weight: bold;
+          
+        }
+      }
+  
 </style>

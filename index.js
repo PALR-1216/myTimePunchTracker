@@ -65,6 +65,7 @@ app.get('/', (req,res) =>{
             let usersWage = userRow[0].usersWage;
             let totalHours
             let totalEarned;
+            let totalNet
             let usersDeduction = userRow[0].usersDeduction;
             // let sqlData = `select * from hours where userId=${userId}`
             // let sqlTotal = `select SUM(totalHour) as SumHours, DECIMAL((totalhour * ${usersWage}),2) as totalMoney from hours where userId=${userId} group by totalHour`;
@@ -78,14 +79,15 @@ app.get('/', (req,res) =>{
                 conn.query(sqltotalMoney,(err,rows) =>{
                     if(err) throw err.message;
                     totalEarned = rows[0].totalMoney
+                    totalNet = totalEarned - (totalEarned * usersDeduction)
 
-                    let sqlData = `SELECT totalHour, totalBreakTime, FORMAT((totalHour * ${usersWage} ),2) as totalEarned , dateAdded from hours where userId='${userId}'`
+                    let sqlData = `SELECT totalHour, hourId, userId, totalBreakTime, FORMAT((totalHour * ${usersWage} ),2) as totalEarned , dateAdded from hours where userId='${userId}'`
                     conn.query(sqlData,(err,rows) =>{
                      
                         if(err) throw err.message;
                         // res.send(rows)
                        
-                        res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalEarned})
+                        res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalNet})
                     })
                 })
 
@@ -133,7 +135,7 @@ app.post('/login',(req,res, next) =>{
                     res.send("<script>alert(`UserName or password are incorrect`); window.location=`/`;</script>")
                 }
 
-                
+            
             })
 
         }
@@ -161,16 +163,16 @@ app.post('/registerNewUser', (req,res,next) =>{
 
                 bcrypt.hash(req.body.password, saltRounds,(err,hash) =>{
                     if(err) throw err.message;
-                    if(!req.body.usersDeduction) {
+                    if(req.body.deduction) {
                         // res.json("No Deduc")
-                        let sql = `insert into users(userName, userPassword, usersWage, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, '${req.body.email}')`
+                        let sql = `insert into users(userName, userPassword, usersWage, usersDeduction, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100}, '${req.body.email}')`
                         conn.commit(sql)
 
                     }
                     else{
 
-                    let sql = `insert into users(userName, userPassword, usersWage, usersDeduction, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction}, '${req.body.email}')`
-                    conn.commit(sql)
+                        let sql = `insert into users(userName, userPassword, usersWage, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, '${req.body.email}')`
+                        conn.commit(sql)
 
                     }
 
@@ -286,6 +288,7 @@ app.post('/dropAllData',(req,res,next) =>{
 
 
 
+
 app.get('/addHour', (req,res,next) =>{
     if(req.session.user_id) {
         let sql = `select * from users where userName='${req.session.user_id}'`
@@ -306,10 +309,10 @@ app.get('/addHour', (req,res,next) =>{
 
 app.post('/addNewHour/:userID',(req,res,next) =>{
     let dateObj = new Date();
-        let year = dateObj.getFullYear();
+        let year = dateObj.getFullYear().toString().slice(-2)
         let month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
         let date = ("0" + dateObj.getDate()).slice(-2);
-        let AllDate = year + "-" + month + "-" + date
+        let AllDate = year + "/" + month + "/" + date
 
     if(req.session.user_id) {
         
@@ -317,7 +320,8 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
             if(req.body.type == "Hours"){
                 let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${req.params.userID}, '${AllDate}')`
                 conn.query(sqlHours,(err,rows) =>{
-                    if(err) throw err;
+                    console.error("Eror in adding hours")
+                    if(err) throw err.message
                 })
                 res.redirect('/')
 
@@ -327,19 +331,22 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
             else{
                 let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
 
-                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - tot}, ${totalMinutes}, ${req.params.userID}, '${AllDate}')`
+                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${req.params.userID}, '${AllDate}')`
                 conn.query(sqlMinutes, (err,rows) =>{
                     if(err) throw err;
                 })
-                res.redirect('/')
-               
-                
+                res.redirect('/') 
             }             
         }
 
         else{
-            let sqlNoBreak = `insert into hours(totalHour userId, dateAdded) values (${req.body.hours}, ${req.params.userID}, '${AllDate}')`
-            res.json(sqlNoBreak)
+            let sqlNoBreak = `insert into hours(totalHour, userId, dateAdded) values (${req.body.hours}, ${req.params.userID}, '${AllDate}')`
+            conn.query(sqlNoBreak,(err,rows) =>{
+                if(err) throw err.message;
+
+
+            })
+            res.redirect('/')
             // conn.query(sqlNoBreak,(err,rows) =>{
             //     if(err) throw err;
 
@@ -359,6 +366,16 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
         res.redirect('/')
     }
 }) 
+
+
+
+app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
+    let sql = `delete * from hour where hourId=${req.params.hourId} and userId =${req.params.userId}`
+    res.json(sql)
+})
+
+
+
 
 
 
