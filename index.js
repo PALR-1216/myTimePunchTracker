@@ -15,6 +15,7 @@ const { response } = require('express');
 app.set('views', path.join("views"));
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({extended:true}))
+
 //make a login System in node with sessions and mysql 
  app.use(cookieParser());
  app.use(express.json());
@@ -211,6 +212,8 @@ app.get('/UsersProfile/:userId',(req,res) =>{
 })
 
 app.get('/EditProfile', (req,res) =>{
+    //need to work on the udpate profile fucntion
+    //TODO:when i update user i get an error i thin it is because i need to chance the cookie session to the new name variable
     if(req.session.user_id) {
         let sql = `select * from users where userName = '${req.session.user_id}'`;
         conn.query(sql,(err,rows) =>{
@@ -225,6 +228,24 @@ app.get('/EditProfile', (req,res) =>{
         res.redirect('/')
     }
 })
+
+// app.post("/UpdateUserProfile", (req,res) =>{
+//     if(req.session.user_id) {
+
+//         let sqlUSer = `select userId from users where userName='${req.session.user_id}'`
+//         conn.query(sqlUSer,(err,rows) =>{
+//             if(err) throw err;
+//             let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction} where userId = ${rows[0].userId}`;
+//             req.session.user_id = req.body.username;
+            
+//             res.send("<script>alert(`User Info Updated`); window.location=`/`;</script>")
+
+//         })
+//     }else{
+//         res.redirect('/')
+//     }
+    
+// })
 
 app.get('/logout', (req,res,next) =>{
  
@@ -370,8 +391,9 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
 
 
 app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
-    let sql = `delete * from hour where hourId=${req.params.hourId} and userId =${req.params.userId}`
-    res.json(sql)
+    let sql = `delete from hours where hourId=${req.params.hourId} and userId =${req.params.userId}`
+    conn.commit(sql)
+    res.redirect('/')
 })
 
 

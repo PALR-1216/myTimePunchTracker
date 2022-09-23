@@ -46,7 +46,7 @@
           <tr>
             <th scope="col">Hours</th>
             <th scope="col">Break Time</th>
-            <th scope="col">Earned (bruto)</th>
+            <th scope="col">Earned</th>
             <th scope="col">Date Added</th>
             <th>Delete</th>
           </tr>
@@ -60,7 +60,7 @@
               <td><%=model[i].totalBreakTime  || "NONE"%></td>
             <td>$<%=model[i].totalEarned%></td>
             <td><%=model[i].dateAdded%></td>
-            <td><a href="/DeleteRow/<%=model[i].hourId%>/<%=model[i].userId%>"><strong style="color: red; text-decoration: none; font-size: large; text-align: center" >X</strong></a></td>
+            <td><a href="/DeleteRow/<%=model[i].hourId%>/<%=model[i].userId%>"><strong style="color: red; text-decoration: none; font-size: large; text-align: center;"  >X</strong></a></td>
           </tr>
           <%}%>
         </tbody>
