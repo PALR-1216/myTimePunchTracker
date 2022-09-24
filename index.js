@@ -28,24 +28,24 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 
 //Connect Database for local develompent im MAMP
-// let conn = mysql.createConnection({
-//     host:"localhost",
-//     user:"root",
-//     password:"root",
-//     database:"myWorkTracker",
-//     port:8889
-// })
+let conn = mysql.createConnection({
+    host:"localhost",
+    user:"root",
+    password:"root",
+    database:"myWorkTracker",
+    port:8889
+})
 
 
 //Connect Database for Global Develompent in cleverCloud
-let conn = mysql.createConnection({
-    host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
-    user:"u0mtfkpltlezrzpw",
-    password:"8UwCtVlwGUFA17fVqfjK",
-    port:3306,
-    database:"bp2qffuyks8vhungamgb"
+// let conn = mysql.createConnection({
+//     host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
+//     user:"u0mtfkpltlezrzpw",
+//     password:"8UwCtVlwGUFA17fVqfjK",
+//     port:3306,
+//     database:"bp2qffuyks8vhungamgb"
 
-})
+// })
 
 
 conn.connect((err) =>{
@@ -369,13 +369,21 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
         }
 
         else{
+
+            let tiempoYmedio = 1.5;
+
             let sqlNoBreak = `insert into hours(totalHour, userId, dateAdded) values (${req.body.hours}, ${req.params.userID}, '${AllDate}')`
-            conn.query(sqlNoBreak,(err,rows) =>{
-                if(err) throw err.message;
+            if(req.body.hours > 5) {
+                let timeExtra = req.body.hours - 5 
+                let totalHourExtra = req.body.hours - timeExtra;
+                // res.json(`${totalHours} x 8.50 + ${timeExtra} == ${totalHours * 8.50 } ${timeExtra} x ${tiempoYmedio * 8.50} == ${(totalHours * 8.50) + ((8.50 * tiempoYmedio) * timeExtra)}`)
+            }
+            // conn.query(sqlNoBreak,(err,rows) =>{
+            //     if(err) throw err.message;
 
 
-            })
-            res.redirect('/')
+            // })
+            // res.redirect('/')
             // conn.query(sqlNoBreak,(err,rows) =>{
             //     if(err) throw err;
 
