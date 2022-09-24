@@ -9,9 +9,6 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 // const { response } = require('express');
 
-
-
-
 app.set('views', path.join("views"));
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({extended:true}))
@@ -413,7 +410,7 @@ app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
 const PORT = process.env.PORT
 
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
 app.listen(port, (err) =>{
     if(err) throw err.message;
