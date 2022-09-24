@@ -412,4 +412,10 @@ app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
 
 const PORT = process.env.PORT
 
-app.listen(PORT || 3000);
+
+const port = process.env.PORT || 3000;
+
+app.listen(port, (err) =>{
+    if(err) throw err.message;
+    console.log("Server running")
+})
