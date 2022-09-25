@@ -201,7 +201,7 @@ app.post('/registerNewUser', (req,res,next) =>{
 
 })
 
-app.get('/UsersProfile/:userId',(req,res) =>{
+app.get('/UsersProfile',(req,res) =>{
     if(req.session.user_id) {
         let sql = `select Format(usersWage,2) as usersWage, userName, usersDeduction, userEmail from users where userName = '${req.session.user_id}'`;
         conn.query(sql, (err,rows) =>{
@@ -323,7 +323,7 @@ app.get('/addHour', (req,res,next) =>{
         let sql = `select * from users where userName='${req.session.user_id}'`
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
-            res.render('addNewWorkHour', {USER:rows[0].userId});
+            res.render('addNewWorkHour');
         })
 
      
@@ -336,7 +336,7 @@ app.get('/addHour', (req,res,next) =>{
 
 
 
-app.post('/addNewHour/:userID',(req,res,next) =>{
+app.post('/addNewHour',(req,res,next) =>{
     let dateObj = new Date();
         let year = dateObj.getFullYear().toString().slice(-2)
         let month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
@@ -344,59 +344,69 @@ app.post('/addNewHour/:userID',(req,res,next) =>{
         let AllDate = year + "/" + month + "/" + date
 
     if(req.session.user_id) {
-        
-        if(req.body.hours && req.body.breakTime) {
-            if(req.body.type == "Hours"){
-                let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${req.params.userID}, '${AllDate}')`
-                conn.query(sqlHours,(err,rows) =>{
-                    console.error("Eror in adding hours")
-                    if(err) throw err.message
+        let sql = `select userId from users where userName = '${req.session.user_id}'`;
+        conn.query(sql,(err,rows) =>{
+            if(err) throw err;
+
+
+            if(req.body.hours && req.body.breakTime) {
+                if(req.body.type == "Hours"){
+                    let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}')`
+                    // res.json(sqlHours)
+                    conn.query(sqlHours,(err,rows) =>{
+                        console.error("Eror in adding hours")
+                        if(err) throw err.message
+                    })
+                    res.redirect('/')
+    
+                }
+                
+    
+                else{
+                    let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
+    
+                    let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${rows[0].userId}, '${AllDate}')`
+                    conn.query(sqlMinutes, (err,rows) =>{
+                        if(err) throw err;
+                    })
+                    res.redirect('/') 
+                }             
+            }
+    
+            else{
+    
+                let tiempoYmedio = 1.5;
+    
+                let sqlNoBreak = `insert into hours(totalHour, userId, dateAdded) values (${req.body.hours}, ${rows[0].userId}, '${AllDate}')`
+                // if(req.body.hours > 5) {
+                //     let timeExtra = req.body.hours - 5 
+                //     let totalHourExtra = req.body.hours - timeExtra;
+                //     // res.json(`${totalHours} x 8.50 + ${timeExtra} == ${totalHours * 8.50 } ${timeExtra} x ${tiempoYmedio * 8.50} == ${(totalHours * 8.50) + ((8.50 * tiempoYmedio) * timeExtra)}`)
+                // }
+                conn.query(sqlNoBreak,(err,rows) =>{
+                    if(err) throw err.message;
+    
+    
                 })
                 res.redirect('/')
-
+                // conn.query(sqlNoBreak,(err,rows) =>{
+                //     if(err) throw err;
+    
+                // })
+                // res.redirect('/')
+    
+                // res.json({
+                //     Hours:req.body.hours,
+                //     Break:"No Break"
+    
+                // })
+    
             }
+
             
-
-            else{
-                let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
-
-                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${req.params.userID}, '${AllDate}')`
-                conn.query(sqlMinutes, (err,rows) =>{
-                    if(err) throw err;
-                })
-                res.redirect('/') 
-            }             
-        }
-
-        else{
-
-            let tiempoYmedio = 1.5;
-
-            let sqlNoBreak = `insert into hours(totalHour, userId, dateAdded) values (${req.body.hours}, ${req.params.userID}, '${AllDate}')`
-            if(req.body.hours > 5) {
-                let timeExtra = req.body.hours - 5 
-                let totalHourExtra = req.body.hours - timeExtra;
-                // res.json(`${totalHours} x 8.50 + ${timeExtra} == ${totalHours * 8.50 } ${timeExtra} x ${tiempoYmedio * 8.50} == ${(totalHours * 8.50) + ((8.50 * tiempoYmedio) * timeExtra)}`)
-            }
-            // conn.query(sqlNoBreak,(err,rows) =>{
-            //     if(err) throw err.message;
-
-
-            // })
-            // res.redirect('/')
-            // conn.query(sqlNoBreak,(err,rows) =>{
-            //     if(err) throw err;
-
-            // })
-            // res.redirect('/')
-
-            // res.json({
-            //     Hours:req.body.hours,
-            //     Break:"No Break"
-
-            // })
-
-        }
+        })
+        
+        
     }
 
     else{
