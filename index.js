@@ -96,7 +96,7 @@ app.get('/', (req,res) =>{
                         if(err) throw err.message;
                         // res.send(rows)
                        
-                        res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalNet})
+                        res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalNet.toFixed(2)})
                     })
                 })
 
