@@ -57,8 +57,14 @@
           <tr>
 
             <th scope="row"><%=model[i].totalHour%></th>
+            <%if(model[i].overtimeHours > 0) {%>
+              <td><%=model[i].overtimeHours%> Hours OverTime</td>
+              
+            <%}else{%>
               <td><%=model[i].totalBreakTime  || "NONE"%></td>
-            <td>$<%=model[i].totalEarned%></td>
+
+            <%}%>
+            <td>$<%=model[i].TotalEarned%></td>
             <td><%=model[i].dateAdded%></td>
             <td><a href="/DeleteRow/<%=model[i].hourId%>/<%=model[i].userId%>"><strong style="color: red; text-decoration: none; font-size: large; text-align: center;"  >X</strong></a></td>
           </tr>

@@ -83,14 +83,14 @@ app.get('/', (req,res) =>{
             conn.query(sqlTotalHours,(err,totalRows) =>{
                 if(err) throw err;
                 totalHours = totalRows[0].SumHours;
-                let sqltotalMoney = `select Format((${totalHours} * ${usersWage}),2) as totalMoney;`
+                let sqltotalMoney = `select SUM(TotalEarned) as totalMoney from hours where userId = ${userId};`
 
                 conn.query(sqltotalMoney,(err,rows) =>{
                     if(err) throw err.message;
                     totalEarned = rows[0].totalMoney
                     totalNet = totalEarned - (totalEarned * usersDeduction)
 
-                    let sqlData = `SELECT totalHour, hourId, userId, totalBreakTime, FORMAT((totalHour * ${usersWage} ),2) as totalEarned , dateAdded from hours where userId='${userId}'`
+                    let sqlData = `SELECT * from hours where userId='${userId}'`
                     conn.query(sqlData,(err,rows) =>{
                      
                         if(err) throw err.message;
@@ -172,20 +172,27 @@ app.post('/registerNewUser', (req,res,next) =>{
 
                 bcrypt.hash(req.body.password, saltRounds,(err,hash) =>{
                     if(err) throw err.message;
-                    if(req.body.deduction) {
-                        // res.json("No Deduc")
-                        let sql = `insert into users(userName, userPassword, usersWage, usersDeduction, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100}, '${req.body.email}')`
-                        conn.commit(sql)
 
-                    }
-                    else{
+                    if(req.body.type == "half") {
+                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${1.5} )`
+                        conn.commit(sqlUsers)
 
-                        let sql = `insert into users(userName, userPassword, usersWage, userEmail) values ('${req.body.username}', '${hash}', ${req.body.wage}, '${req.body.email}')`
-                        conn.commit(sql)
 
                     }
 
+                    else if(req.body.type == "double") {
+                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${2} )`
+                        conn.commit(sqlUsers)
 
+                    }
+    
+
+                   //TODO:chedk user select option
+                  
+                   
+                  
+
+                    
                 
                     // conn.query(sql,(err,rows) =>{
                     //     if(err) throw err.message;
@@ -344,14 +351,16 @@ app.post('/addNewHour',(req,res,next) =>{
         let AllDate = year + "/" + month + "/" + date
 
     if(req.session.user_id) {
-        let sql = `select userId from users where userName = '${req.session.user_id}'`;
+        let sql = `select * from users where userName = '${req.session.user_id}'`;
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
 
 
             if(req.body.hours && req.body.breakTime) {
                 if(req.body.type == "Hours"){
-                    let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}')`
+                    let totalHour = req.body.hours - req.body.breakTime
+                    let totalAmount = totalHour * rows[0].usersWage
+                    let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded, TotalEarned) values (${req.body.hours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
                     // res.json(sqlHours)
                     conn.query(sqlHours,(err,rows) =>{
                         console.error("Eror in adding hours")
@@ -364,8 +373,10 @@ app.post('/addNewHour',(req,res,next) =>{
     
                 else{
                     let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
-    
-                    let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${rows[0].userId}, '${AllDate}')`
+
+                    let totalHour = req.body.hours - totalMinutes
+                    let totalAmount = totalHour * rows[0].usersWage;
+                    let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded,TotalEarned) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
                     conn.query(sqlMinutes, (err,rows) =>{
                         if(err) throw err;
                     })
@@ -374,21 +385,45 @@ app.post('/addNewHour',(req,res,next) =>{
             }
     
             else{
-    
-                let tiempoYmedio = 1.5;
-    
-                let sqlNoBreak = `insert into hours(totalHour, userId, dateAdded) values (${req.body.hours}, ${rows[0].userId}, '${AllDate}')`
-                // if(req.body.hours > 5) {
-                //     let timeExtra = req.body.hours - 5 
-                //     let totalHourExtra = req.body.hours - timeExtra;
-                //     // res.json(`${totalHours} x 8.50 + ${timeExtra} == ${totalHours * 8.50 } ${timeExtra} x ${tiempoYmedio * 8.50} == ${(totalHours * 8.50) + ((8.50 * tiempoYmedio) * timeExtra)}`)
-                // }
-                conn.query(sqlNoBreak,(err,rows) =>{
-                    if(err) throw err.message;
-    
-    
-                })
+                let sql =  `select * from users where userName ='${req.session.user_id}'`
+                conn.query(sql,(err,rows) =>{
+
+                    if(req.body.hours > 5) {
+
+                        
+                            if(err) throw err;
+                            let overtimeWage = rows[0].usersOvertime * rows[0].usersWage
+                            let extraHours = req.body.hours - 5;
+                            let totalExtra = extraHours * overtimeWage;
+                            let totalAmount = (5 * rows[0].usersWage) + totalExtra;
+                            let addOversql = `insert into hours (totalHour, userId, dateAdded, overtimeHours, TotalEarned) values (${req.body.hours}, ${rows[0].userId}, '${AllDate}', ${extraHours}, ${totalAmount})`
+                            conn.commit(addOversql);
+                    
+                    }
+
+                    else{
+                        let total = req.body.hours * rows[0].usersWage;
+                        let sqlNoBreak = `insert into hours(totalHour, userId, dateAdded, TotalEarned) values (${req.body.hours}, ${rows[0].userId}, '${AllDate}', ${total})`
+                        conn.commit(sqlNoBreak)
+                    }
+
+            }) 
+
                 res.redirect('/')
+
+    
+                
+                //5 x 8.50 == 42.50 + 3 x 12.75 == 38.25 == 80.75
+                // else{
+                //     conn.query(sqlNoBreak,(err,rows) =>{
+                //         if(err) throw err.message;
+        
+        
+                //     })
+                //     res.redirect('/')
+                // }
+               
+               
                 // conn.query(sqlNoBreak,(err,rows) =>{
                 //     if(err) throw err;
     

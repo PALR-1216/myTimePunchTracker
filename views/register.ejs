@@ -39,14 +39,16 @@
 
                     <div class="mb-3">
                         <label">Deduction %</label>
-                        <input  type="number" step="0.01" placeholder="just Place the Number" name="deduction" class="form-control">
+                        <input  type="number" step="0.01" placeholder="(8%, 10%)" name="deduction" class="form-control">
 
 
                     </div>
 
-                    <select>
-                        <option  name="DoubleTime">Double Time</option>
-                        <option selected name="TimeAndHalf">Time and Half</option>
+                    <select name="type" id="">
+                        <option selected name="half" value="half">Time and Half</option>
+                        <option name="double" value="double">Double Time</option>
+                        
+                     
                     </select>
 
                     <div class="mb-3">
