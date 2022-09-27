@@ -22,10 +22,16 @@
                 <h5 class="card-title">User - <%=usersInfo[i].userName%></h5>
                 <p class="card-text">Users Wage - <%=usersInfo[i].usersWage%></p>
                 <p class="card-text">Users Email - <%=usersInfo[i].userEmail%></p>
+                <%if(usersInfo[i].usersOvertime == 1.50) {%>
+                    <p class="card-text">Users Overtime - (Time and A Half <%=usersInfo[i].usersOvertime%>)</p>
+                <%}else{%>
+                    <p class="card-text">Users Overtime - (Double Time <%=usersInfo[i].usersOvertime%>)</p>
+
+                <%}%>
                 <p class="card-text">Users Deduction - <%=usersInfo[i].usersDeduction || "NONE"%></p>
                 
                 <!-- <a href="/" class="btn btn-primary">Edit profile</a> -->
-                <!-- <a href="/editProfile" class="btn btn-primary">Edit Profile</a> -->
+                <a href="/editProfile" class="btn btn-primary">Edit Profile</a>
 
 
                 </div>

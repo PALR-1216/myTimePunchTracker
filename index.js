@@ -28,24 +28,24 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 
 //Connect Database for local develompent im MAMP
-// let conn = mysql.createConnection({
-//     host:"localhost",
-//     user:"root",
-//     password:"root",
-//     database:"myWorkTracker",
-//     port:8889
-// })
+let conn = mysql.createConnection({
+    host:"localhost",
+    user:"root",
+    password:"root",
+    database:"myWorkTracker",
+    port:8889
+})
 
 
 //Connect Database for Global Develompent in cleverCloud
-let conn = mysql.createConnection({
-    host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
-    user:"u0mtfkpltlezrzpw",
-    password:"8UwCtVlwGUFA17fVqfjK",
-    port:3306,
-    database:"bp2qffuyks8vhungamgb"
+// let conn = mysql.createConnection({
+//     host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
+//     user:"u0mtfkpltlezrzpw",
+//     password:"8UwCtVlwGUFA17fVqfjK",
+//     port:3306,
+//     database:"bp2qffuyks8vhungamgb"
 
-})
+// })
 
 
 conn.connect((err) =>{
@@ -210,7 +210,7 @@ app.post('/registerNewUser', (req,res,next) =>{
 
 app.get('/UsersProfile',(req,res) =>{
     if(req.session.user_id) {
-        let sql = `select Format(usersWage,2) as usersWage, userName, usersDeduction, userEmail from users where userName = '${req.session.user_id}'`;
+        let sql = `select Format(usersWage,2) as usersWage, userName, usersDeduction, userEmail, usersOvertime from users where userName = '${req.session.user_id}'`;
         conn.query(sql, (err,rows) =>{
             if(err) throw err;
 
@@ -233,7 +233,6 @@ app.get('/EditProfile', (req,res) =>{
         let sql = `select * from users where userName = '${req.session.user_id}'`;
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
-
             res.render("editProfile", {model:rows})
         })
 
@@ -244,23 +243,44 @@ app.get('/EditProfile', (req,res) =>{
     }
 })
 
-// app.post("/UpdateUserProfile", (req,res) =>{
-//     if(req.session.user_id) {
+app.post("/UpdateUserProfile", (req,res) =>{
+    if(req.session.user_id) {
 
-//         let sqlUSer = `select userId from users where userName='${req.session.user_id}'`
-//         conn.query(sqlUSer,(err,rows) =>{
-//             if(err) throw err;
-//             let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction} where userId = ${rows[0].userId}`;
-//             req.session.user_id = req.body.username;
+        let sqlUSer = `select userId from users where userName='${req.session.user_id}'`
+        conn.query(sqlUSer,(err,rows) =>{
+            if(err) throw err;
+
+            if(req.body.type == "half") {
+               
+                let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction}, usersOvertime =${1.5} where userId = ${rows[0].userId}`;
+                delete req.session.user_id;
+                req.session.user_id = req.body.username
+                conn.commit(sql)
+            }
+
+            else if(req.body.type == "double") {
+                let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction}, usersOvertime =${2} where userId = ${rows[0].userId}`;
+                delete req.session.user_id;
+                req.session.user_id = req.body.username
+                conn.commit(sql)
+
+            }
+
             
-//             res.send("<script>alert(`User Info Updated`); window.location=`/`;</script>")
+            // let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction}, usersOvertime =${req.body.type} where userId = ${rows[0].userId}`;
+            // delete req.session.user_id;
+            // req.session.user_id = req.body.username
+            // conn.commit(sql)
+            // res.json(req.session.user_id)
+            
+            res.send("<script>alert(`User Info Updated`); window.location=`/`;</script>")
 
-//         })
-//     }else{
-//         res.redirect('/')
-//     }
+        })
+    }else{
+        res.redirect('/')
+    }
     
-// })
+})
 
 app.get('/logout', (req,res,next) =>{
  
