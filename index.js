@@ -39,6 +39,8 @@ app.use(bodyParser.urlencoded({extended:true}))
     
  }))
 
+ let AdminPassword = "senpai"
+
 
 
 
@@ -76,9 +78,9 @@ conn.connect((err) =>{
 app.get('/', (req,res) =>{
   
 
-    if(req.session.user_id) {
+    if(req.cookies.user_id) {
         
-        let sql = `select * , FORMAT(usersWage,2) as formatWage from users where userName = '${req.session.user_id}'`;
+        let sql = `select * , FORMAT(usersWage,2) as formatWage from users where userName = '${req.cookies.user_id}'`;
         // let sql = `select *, FORMAT(totalBreakTime,2) as formated from hours where userName='${req.session.user_id}'`
         conn.query(sql, (err,userRow) =>{
             if(err) {
@@ -111,7 +113,7 @@ app.get('/', (req,res) =>{
                         if(err) throw err.message;
                         // res.send(rows)
                        
-                        res.render('home', {session:req.session.user_id, model:rows, totalHours:totalHours, totalMoney:totalNet.toFixed(2)})
+                        res.render('home', {session:req.cookies.user_id, model:rows, totalHours:totalHours, totalMoney:totalNet.toFixed(2)})
                     })
                 })
 
@@ -121,7 +123,7 @@ app.get('/', (req,res) =>{
     }
 
     else{
-        res.render("login", {session:req.session})
+        res.render("login", {session:req.cookies.user_id})
     }
 })
 
@@ -143,7 +145,8 @@ app.post('/login',(req,res, next) =>{
                     let hash = rows[0].userPassword;
                     bcrypt.compare(password,hash, (err,result) =>{
                         if(result) {
-                            req.session.user_id = username;
+                            res.cookie("user_id", username)
+                            // req.session.user_id = username;
                             res.redirect('/')
                         }
 
@@ -224,8 +227,8 @@ app.post('/registerNewUser', (req,res,next) =>{
 })
 
 app.get('/UsersProfile',(req,res) =>{
-    if(req.session.user_id) {
-        let sql = `select Format(usersWage,2) as usersWage, userName, usersDeduction, userEmail, usersOvertime from users where userName = '${req.session.user_id}'`;
+    if(req.cookies.user_id) {
+        let sql = `select Format(usersWage,2) as usersWage, userName, usersDeduction, userEmail, usersOvertime from users where userName = '${req.cookies.user_id}'`;
         conn.query(sql, (err,rows) =>{
             if(err) throw err;
 
@@ -244,8 +247,8 @@ app.get('/UsersProfile',(req,res) =>{
 app.get('/EditProfile', (req,res) =>{
     //need to work on the udpate profile fucntion
     //TODO:when i update user i get an error i thin it is because i need to chance the cookie session to the new name variable
-    if(req.session.user_id) {
-        let sql = `select * from users where userName = '${req.session.user_id}'`;
+    if(req.cookies.user_id) {
+        let sql = `select * from users where userName = '${req.cookies.user_id}'`;
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
             res.render("editProfile", {model:rows})
@@ -259,24 +262,24 @@ app.get('/EditProfile', (req,res) =>{
 })
 
 app.post("/UpdateUserProfile", (req,res) =>{
-    if(req.session.user_id) {
+    if(req.cookies.user_id) {
 
-        let sqlUSer = `select userId from users where userName='${req.session.user_id}'`
+        let sqlUSer = `select userId from users where userName='${req.cookies.user_id}'`
         conn.query(sqlUSer,(err,rows) =>{
             if(err) throw err;
 
             if(req.body.type == "half") {
                
                 let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction}, usersOvertime =${1.5} where userId = ${rows[0].userId}`;
-                delete req.session.user_id;
-                req.session.user_id = req.body.username
+                delete req.cookies.user_id;
+                req.cookies.user_id = req.body.username
                 conn.commit(sql)
             }
 
             else if(req.body.type == "double") {
                 let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction}, usersOvertime =${2} where userId = ${rows[0].userId}`;
-                delete req.session.user_id;
-                req.session.user_id = req.body.username
+                delete req.cookies.user_id;
+                req.cookies.user_id = req.body.username
                 conn.commit(sql)
 
             }
@@ -313,7 +316,7 @@ app.get('/logout', (req,res,next) =>{
 
 
 app.get('/dropTable', (req,res,next) =>{
-    if(req.session.user_id) {
+    if(req.cookies.user_id) {
         res.render("dropTable")
     }
 
@@ -324,10 +327,10 @@ app.get('/dropTable', (req,res,next) =>{
 
 
 app.post('/dropAllData',(req,res,next) =>{
-    if(req.session.user_id) {
+    if(req.cookies.user_id) {
 
         if(req.body.password) {
-            let sql =  `select * from users where userName ='${req.session.user_id}'`;
+            let sql =  `select * from users where userName ='${req.cookies.user_id}'`;
 
             conn.query(sql, (err,rows) =>{
                 if(err) throw err.message;
@@ -369,8 +372,8 @@ app.post('/dropAllData',(req,res,next) =>{
 
 
 app.get('/addHour', (req,res,next) =>{
-    if(req.session.user_id) {
-        let sql = `select * from users where userName='${req.session.user_id}'`
+    if(req.cookies.user_id) {
+        let sql = `select * from users where userName='${req.cookies.user_id}'`
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
             res.render('addNewWorkHour');
@@ -393,8 +396,8 @@ app.post('/addNewHour',(req,res,next) =>{
         let date = ("0" + dateObj.getDate()).slice(-2);
         let AllDate = year + "/" + month + "/" + date
 
-    if(req.session.user_id) {
-        let sql = `select * from users where userName = '${req.session.user_id}'`;
+    if(req.cookies.user_id) {
+        let sql = `select * from users where userName = '${req.cookies.user_id}'`;
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
 
@@ -428,7 +431,7 @@ app.post('/addNewHour',(req,res,next) =>{
             }
     
             else{
-                let sql =  `select * from users where userName ='${req.session.user_id}'`
+                let sql =  `select * from users where userName ='${req.cookies.user_id}'`
                 conn.query(sql,(err,rows) =>{
 
                     if(req.body.hours > 5) {
@@ -497,8 +500,26 @@ app.get('/api', (req,res) =>{
             totalHours.push(obj)
         }
 
-        res.json(totalHours)
+        res.send(totalHours)
+        // res.json(totalHours)
     })
+})
+
+app.get('/api/:admin', (req,res)=>{
+    if(req.params.admin == AdminPassword) { 
+        let sql = "select * from users";
+
+        conn.query(sql,(err,rows) =>{
+            if(err) throw err;
+
+            res.json(rows)
+        })
+
+    }
+
+    else{
+        res.redirect('/')
+    }
 })
 
 
