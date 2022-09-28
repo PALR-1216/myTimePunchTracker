@@ -483,9 +483,9 @@ app.get('/api', (req,res) =>{
 const PORT = process.env.PORT
 
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
 app.listen(port, (err) =>{
     if(err) throw err.message;
-    console.log("Server running")
+    console.log("Server running", port)
 })
