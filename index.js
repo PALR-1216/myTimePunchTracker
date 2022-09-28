@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 
 
-//Connect Database for local develompent im MAMP
+// Connect Database for local develompent im MAMP
 // let conn = mysql.createConnection({
 //     host:"localhost",
 //     user:"root",
@@ -433,28 +433,6 @@ app.post('/addNewHour',(req,res,next) =>{
 
     
                 
-                //5 x 8.50 == 42.50 + 3 x 12.75 == 38.25 == 80.75
-                // else{
-                //     conn.query(sqlNoBreak,(err,rows) =>{
-                //         if(err) throw err.message;
-        
-        
-                //     })
-                //     res.redirect('/')
-                // }
-               
-               
-                // conn.query(sqlNoBreak,(err,rows) =>{
-                //     if(err) throw err;
-    
-                // })
-                // res.redirect('/')
-    
-                // res.json({
-                //     Hours:req.body.hours,
-                //     Break:"No Break"
-    
-                // })
     
             }
 
@@ -479,12 +457,27 @@ app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
 
 
 app.get('/api', (req,res) =>{
+    let totalHours = [];
     let sql = `select * from hours`
     conn.query(sql,(err,rows) =>{
-        res.json(rows)
-        console.table(rows)
+        for(i in rows) {
+            let obj ={
+                hourId:rows[i].hourId,
+                totalHour:rows[i].totalHour,
+                userId:rows[i].userId,
+                dateAdded:rows[i].dateAdded,
+                totalBreakTime:rows[i].totalBreakTime,
+                TotalEarned:rows[i].TotalEarned,
+                overtimeHours:rows[i].overtimeHours
+            }
+
+            totalHours.push(obj)
+        }
+
+        res.json(totalHours)
     })
 })
+
 
 
 const PORT = process.env.PORT
