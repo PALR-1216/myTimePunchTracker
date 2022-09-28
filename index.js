@@ -523,6 +523,9 @@ app.get('/api/:admin', (req,res)=>{
 })
 
 
+setInterval(function () {
+    conn.query('SELECT 1');
+}, 5000);
 
 const PORT = process.env.PORT
 
