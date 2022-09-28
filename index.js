@@ -10,13 +10,15 @@
 import express from 'express'
 const app = express()
 import mysql from 'mysql'
-import session from 'express-session'
+import session from 'cookie-session'
 import bodyParser from 'body-parser'
 import path from 'path'
 import bcrypt from 'bcrypt'
 import cookieParser from 'cookie-parser'
+// import cookie from 'cookie-session'
 
 
+app.set('trust proxy', 1);
 app.set('views', path.join("views"));
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({extended:true}))
@@ -26,10 +28,15 @@ app.use(bodyParser.urlencoded({extended:true}))
  app.use(express.json());
 
  app.use(session({
+    cookie:{
+        secure:true,
+        maxAge:21600000
+
+    },
     secret:'user_sid',
     resave:true,
     saveUninitialized:true,
-    cookie:{maxAge:21600000 }
+    
  }))
 
 
