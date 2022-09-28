@@ -512,7 +512,7 @@ app.get('/api/:admin', (req,res)=>{
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
 
-            res.json(rows)
+            return res.json(rows)
         })
 
     }
@@ -523,6 +523,7 @@ app.get('/api/:admin', (req,res)=>{
 })
 
 
+//function so the server doesent go to sleep
 setInterval(function () {
     conn.query('SELECT 1');
 }, 5000);
