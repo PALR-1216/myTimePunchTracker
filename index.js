@@ -1,13 +1,21 @@
-const express = require('express')
-const app = express();
-const mysql = require('mysql')
-const session = require('express-session')
-const bodyParser = require('body-parser')
-const path = require('path')
-const bcrypt = require('bcrypt');
-// const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-// const { response } = require('express');
+// const express = require('express')
+// const app = express();
+// const mysql = require('mysql')
+// const session = require('express-session')
+// const bodyParser = require('body-parser')
+// const path = require('path')
+// const bcrypt = require('bcrypt');
+// const cookieParser = require('cookie-parser');
+
+import express from 'express'
+const app = express()
+import mysql from 'mysql'
+import session from 'express-session'
+import bodyParser from 'body-parser'
+import path from 'path'
+import bcrypt from 'bcrypt'
+import cookieParser from 'cookie-parser'
+
 
 app.set('views', path.join("views"));
 app.set('view engine', 'ejs')
@@ -485,7 +493,7 @@ const PORT = process.env.PORT
 
 const port = process.env.PORT || 8080;
 
-app.listen(8080, (err) =>{
+app.listen(port, (err) =>{
     if(err) throw err.message;
     console.log("Server running", port)
 })
