@@ -28,24 +28,24 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 
 //Connect Database for local develompent im MAMP
-let conn = mysql.createConnection({
-    host:"localhost",
-    user:"root",
-    password:"root",
-    database:"myWorkTracker",
-    port:8889
-})
-
-
-//Connect Database for Global Develompent in cleverCloud
 // let conn = mysql.createConnection({
-//     host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
-//     user:"u0mtfkpltlezrzpw",
-//     password:"8UwCtVlwGUFA17fVqfjK",
-//     port:3306,
-//     database:"bp2qffuyks8vhungamgb"
-
+//     host:"localhost",
+//     user:"root",
+//     password:"root",
+//     database:"myWorkTracker",
+//     port:8889
 // })
+
+
+// Connect Database for Global Develompent in cleverCloud
+let conn = mysql.createConnection({
+    host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
+    user:"u0mtfkpltlezrzpw",
+    password:"8UwCtVlwGUFA17fVqfjK",
+    port:3306,
+    database:"bp2qffuyks8vhungamgb"
+
+})
 
 
 conn.connect((err) =>{
@@ -478,6 +478,13 @@ app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
 })
 
 
+app.get('/api', (req,res) =>{
+    let sql = `select * from hours`
+    conn.query(sql,(err,rows) =>{
+        res.json(rows)
+        console.table(rows)
+    })
+})
 
 
 const PORT = process.env.PORT
