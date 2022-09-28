@@ -111,7 +111,7 @@ app.get('/', (req,res) =>{
                         if(err) throw err.message;
                         // res.send(rows)
                        
-                        res.render('home', {session:req.session, model:rows, totalHours:totalHours, totalMoney:totalNet.toFixed(2)})
+                        res.render('home', {session:req.session.user_id, model:rows, totalHours:totalHours, totalMoney:totalNet.toFixed(2)})
                     })
                 })
 
@@ -299,8 +299,16 @@ app.post("/UpdateUserProfile", (req,res) =>{
 
 app.get('/logout', (req,res,next) =>{
  
-        req.session.destroy();
-        res.redirect('/')
+        // req.session.destroy();
+        
+        let cookie = req.cookies;
+        for (var prop in cookie) {
+            if (!cookie.hasOwnProperty(prop)) {
+                continue;
+            }    
+            res.cookie(prop, '', {expires: new Date(0)});
+        }
+        res.redirect('/');
 })
 
 
@@ -475,7 +483,7 @@ app.get('/api', (req,res) =>{
     let totalHours = [];
     let sql = `select * from hours`
     conn.query(sql,(err,rows) =>{
-        for(i in rows) {
+        for(let i in rows) {
             let obj ={
                 hourId:rows[i].hourId,
                 totalHour:rows[i].totalHour,
