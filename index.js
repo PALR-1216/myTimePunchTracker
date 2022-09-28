@@ -485,7 +485,7 @@ const PORT = process.env.PORT
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, (err) =>{
+app.listen(3000, (err) =>{
     if(err) throw err.message;
     console.log("Server running", port)
 })
