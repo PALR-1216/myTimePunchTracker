@@ -176,6 +176,13 @@ app.get('/registerUser', (req,res,next) =>{
 })
 
 app.post('/registerNewUser', (req,res,next) =>{
+    let dateObj = new Date();
+    let year = dateObj.getFullYear().toString().slice(-2)
+    let month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
+    let date = ("0" + dateObj.getDate()).slice(-2);
+    let AllDate = year + "/" + month + "/" + date
+
+
     const saltRounds = 10;
 
     //TODO:check if user exist in the database if the email and username is the same
@@ -192,14 +199,14 @@ app.post('/registerNewUser', (req,res,next) =>{
                     if(err) throw err.message;
 
                     if(req.body.type == "half") {
-                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${1.5} )`
+                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime, DateAdded) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${1.5} , '${AllDate}')`
                         conn.commit(sqlUsers)
 
 
                     }
 
                     else if(req.body.type == "double") {
-                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${2} )`
+                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime, DateAdded) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${1.5} , '${AllDate}')`
                         conn.commit(sqlUsers)
 
                     }
@@ -507,12 +514,12 @@ app.get('/api', (req,res) =>{
 
 app.get('/api/:admin', (req,res)=>{
     if(req.params.admin == AdminPassword) { 
-        let sql = "select * from users";
+        let sql = "select userName, userEmail, userId, DateAdded from users";
 
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
 
-            return res.json(rows)
+            res.render('usersAdmin', {model:rows})
         })
 
     }
