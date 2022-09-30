@@ -516,10 +516,11 @@ app.get('/api/:admin', (req,res)=>{
     if(req.params.admin == AdminPassword) { 
         let sql = "select userName, userEmail, userId, DateAdded from users";
 
+
         conn.query(sql,(err,rows) =>{
             if(err) throw err;
 
-            res.render('usersAdmin', {model:rows})
+            res.render('usersAdmin', {model:rows, totalUsers:rows.length})
         })
 
     }
