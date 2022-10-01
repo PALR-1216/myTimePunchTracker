@@ -531,10 +531,22 @@ app.get('/api/:admin', (req,res)=>{
 })
 
 app.get('/api/:admin/users',(req,res) =>{
+    let array = []
     let sql = `select * from users`;
     conn.query(sql,(err,rows) =>{
         if(err) {throw err}
-        res.json(rows)
+
+        for(let i in rows) {
+            let obj = {
+                userId:rows[i].userId,
+                userName:rows[i].userName,
+                userEmail:rows[i].userEmail
+            }
+
+            array.push(obj)
+        }
+        res.json(array)
+
     })
 })
 
