@@ -530,6 +530,14 @@ app.get('/api/:admin', (req,res)=>{
     }
 })
 
+app.get('/api/:admin/users',(req,res) =>{
+    let sql = `select * from users`;
+    conn.query(sql,(err,rows) =>{
+        if(err) {throw err}
+        res.json(rows)
+    })
+})
+
 
 //function so the server doesent go to sleep
 setInterval(function () {
