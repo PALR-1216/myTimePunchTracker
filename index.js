@@ -550,6 +550,32 @@ app.get('/api/:admin/users',(req,res) =>{
     })
 })
 
+app.get('/api/:admin/hours', (req,res) =>{
+    let user = req.query.user
+
+    let sql = `select * from hours where userId = ${user}`
+    let userData = []
+
+    conn.query(sql, (err,rows) =>{
+        if(err) throw err
+
+        for(let i in rows) {
+            let obj = {
+                totalHour:rows[i].totalHour,
+                dateAdded:rows[i].dateAdded,
+                totalBreakTime:rows[i].totalBreakTime,
+                TotalEarned:rows[i].TotalEarned,
+                overtimeHours:rows[i].overtimeHours
+            }
+
+
+            userData.push(obj)
+        }
+        res.json(userData)
+    
+    })
+})
+
 
 //function so the server doesent go to sleep
 setInterval(function () {
