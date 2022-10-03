@@ -15,6 +15,7 @@ import bodyParser from 'body-parser'
 import path from 'path'
 import bcrypt from 'bcrypt'
 import cookieParser from 'cookie-parser'
+import Jsontoken from 'jsonwebtoken'
 // import cookie from 'cookie-session'
 
 
@@ -463,16 +464,8 @@ app.post('/addNewHour',(req,res,next) =>{
             }) 
 
                 res.redirect('/')
-
-    
-                
-    
             }
-
-            
         })
-        
-        
     }
 
     else{
@@ -488,6 +481,12 @@ app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
     res.redirect('/')
 })
 
+
+app.get('/recoverPassword', (req,res) =>{
+
+    res.json("lol")
+
+})
 
 
 
@@ -517,6 +516,7 @@ app.get('/api', (req,res) =>{
     })
 })
 
+
 app.get('/api/:admin', (req,res)=>{
     if(req.params.admin == AdminPassword) { 
         let sql = "select userName, userEmail, userId, DateAdded from users";
@@ -527,7 +527,6 @@ app.get('/api/:admin', (req,res)=>{
 
             res.render('usersAdmin', {model:rows, totalUsers:rows.length})
         })
-
     }
 
     else{
