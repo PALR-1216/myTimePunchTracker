@@ -277,14 +277,14 @@ app.post("/UpdateUserProfile", (req,res) =>{
 
             if(req.body.type == "half") {
                
-                let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction}, usersOvertime =${1.5} where userId = ${rows[0].userId}`;
+                let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction || null}, usersOvertime =${1.5} where userId = ${rows[0].userId}`;
                 delete req.cookies.user_id;
                 req.cookies.user_id = req.body.username
                 conn.commit(sql)
             }
 
             else if(req.body.type == "double") {
-                let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction}, usersOvertime =${2} where userId = ${rows[0].userId}`;
+                let sql = `update users set userName = '${req.body.username}', userEmail = '${req.body.email}', usersWage =${req.body.wage}, usersDeduction=${req.body.deduction || null}, usersOvertime =${2} where userId = ${rows[0].userId}`;
                 delete req.cookies.user_id;
                 req.cookies.user_id = req.body.username
                 conn.commit(sql)
@@ -489,6 +489,11 @@ app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
 })
 
 
+
+
+//----API -----
+
+
 app.get('/api', (req,res) =>{
     let totalHours = [];
     let sql = `select * from hours`
@@ -532,22 +537,44 @@ app.get('/api/:admin', (req,res)=>{
 
 app.get('/api/:admin/users',(req,res) =>{
     let array = []
-    let sql = `select * from users`;
-    conn.query(sql,(err,rows) =>{
-        if(err) {throw err}
+    let user = req.query.user
+    if(!req.query.user) {
 
-        for(let i in rows) {
-            let obj = {
-                userId:rows[i].userId,
-                userName:rows[i].userName,
-                userEmail:rows[i].userEmail
+        let sql = `select * from users`;
+
+        conn.query(sql,(err,rows) =>{
+            if(err) {throw err}
+
+            for(let i in rows) {
+                let obj = {
+                    userId:rows[i].userId,
+                    userName:rows[i].userName,
+                    userEmail:rows[i].userEmail
+                }
+
+                array.push(obj)
             }
+            res.json(array)
 
-            array.push(obj)
-        }
-        res.json(array)
+        })
 
-    })
+    }
+    
+
+    else if(user) {
+        let sql = `select * from users where userId=${user}`
+        conn.query(sql,(err,rows) =>{
+            if(err){throw err}
+
+                let obj = {
+                    userId:rows[0].userId,
+                    userName:rows[0].userName,
+                    userEmail:rows[0].userEmail
+                }
+                res.json(obj)
+                
+        })
+    }
 })
 
 app.get('/api/:admin/hours', (req,res) =>{
@@ -557,7 +584,7 @@ app.get('/api/:admin/hours', (req,res) =>{
     let userData = []
 
     conn.query(sql, (err,rows) =>{
-        if(err) throw err
+        if(err) {throw err}
 
         for(let i in rows) {
             let obj = {
@@ -565,7 +592,8 @@ app.get('/api/:admin/hours', (req,res) =>{
                 dateAdded:rows[i].dateAdded,
                 totalBreakTime:rows[i].totalBreakTime,
                 TotalEarned:rows[i].TotalEarned,
-                overtimeHours:rows[i].overtimeHours
+                overtimeHours:rows[i].overtimeHours,
+                hourId:rows[i].hourId
             }
 
 
@@ -575,6 +603,7 @@ app.get('/api/:admin/hours', (req,res) =>{
     
     })
 })
+
 
 
 //function so the server doesent go to sleep
