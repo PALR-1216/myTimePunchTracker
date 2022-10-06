@@ -483,8 +483,14 @@ app.get('/DeleteRow/:hourId/:userId',(req,res) =>{
 
 
 app.get('/recoverPassword', (req,res) =>{
+    res.render("ForgotPasswordUI")
 
-    res.json("lol")
+})
+
+app.post('/recoverLostPassword', (req,res) =>{
+    //check if email exists in database and then send the email to the user
+    let email = req.body.email;
+    res.json(email)
 
 })
 
