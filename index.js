@@ -46,24 +46,24 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 
 // Connect Database for local develompent im MAMP
-// let conn = mysql.createConnection({
-//     host:"localhost",
-//     user:"root",
-//     password:"root",
-//     database:"myWorkTracker",
-//     port:8889
-// })
+let conn = mysql.createConnection({
+    host:"localhost",
+    user:"root",
+    password:"root",
+    database:"myWorkTracker",
+    port:8889
+})
 
 
 // Connect Database for Global Develompent in cleverCloud
-let conn = mysql.createConnection({
-    host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
-    user:"u0mtfkpltlezrzpw",
-    password:"8UwCtVlwGUFA17fVqfjK",
-    port:3306,
-    database:"bp2qffuyks8vhungamgb"
+// let conn = mysql.createConnection({
+//     host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
+//     user:"u0mtfkpltlezrzpw",
+//     password:"8UwCtVlwGUFA17fVqfjK",
+//     port:3306,
+//     database:"bp2qffuyks8vhungamgb"
 
-})
+// })
 
 
 conn.connect((err) =>{
@@ -489,6 +489,7 @@ app.get('/recoverPassword', (req,res) =>{
 
 app.post('/recoverLostPassword', (req,res) =>{
     //check if email exists in database and then send the email to the user
+    //sendGrid api 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
     let email = req.body.email;
 
     let sql = `select * from users where userEmail = '${email}'`
@@ -498,7 +499,7 @@ app.post('/recoverLostPassword', (req,res) =>{
 
 
 
-//----API -----
+//TODO:----API -----
 
 
 app.get('/api', (req,res) =>{
