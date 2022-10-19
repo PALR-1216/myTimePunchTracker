@@ -616,7 +616,9 @@ app.get('/api/:admin/hours', (req,res) =>{
 app.post('/Apilogin', (req,res) =>{
     let userName = req.body.userName
     let password = req.body.password;
-    res.json("dsdsdsd")
+
+    console.log(userName)
+    
 
     // if(!username) {
     //     res.json({Message:"Enter username"})
