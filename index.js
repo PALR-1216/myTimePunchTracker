@@ -46,24 +46,24 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 
 // Connect Database for local develompent im MAMP
-let conn = mysql.createConnection({
-    host:"localhost",
-    user:"root",
-    password:"root",
-    database:"myWorkTracker",
-    port:8889
-})
+// let conn = mysql.createConnection({
+//     host:"localhost",
+//     user:"root",
+//     password:"root",
+//     database:"myWorkTracker",
+//     port:8889
+// })
 
 
 // Connect Database for Global Develompent in cleverCloud
-// let conn = mysql.createConnection({
-//     host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
-//     user:"u0mtfkpltlezrzpw",
-//     password:"8UwCtVlwGUFA17fVqfjK",
-//     port:3306,
-//     database:"bp2qffuyks8vhungamgb"
+let conn = mysql.createConnection({
+    host:"bp2qffuyks8vhungamgb-mysql.services.clever-cloud.com",
+    user:"u0mtfkpltlezrzpw",
+    password:"8UwCtVlwGUFA17fVqfjK",
+    port:3306,
+    database:"bp2qffuyks8vhungamgb"
 
-// })
+})
 
 
 conn.connect((err) =>{
@@ -617,29 +617,42 @@ app.post('/Apilogin', (req,res) =>{
     let userName = req.body.userName
     let password = req.body.password;
 
-    console.log(userName)
     
+    if(!userName) {
+        res.json({Message:"Enter username"})
 
-    // if(!username) {
-    //     res.json({Message:"Enter username"})
+    }
+    else if(!password) {
+        res.json({Message:"Enter password"})
 
-    // }
-    // else if(!password) {
-    //     res.json({Message:"Enter password"})
+    }
 
-    // }
+    else{
+        //check if user exist
+        let sql = `select * from users where userName='${userName}'`
+        conn.query(sql, async(err,rows) =>{
+            if(rows.length == 0) {
+                res.json({Message:"Error in finding users"})
+            }
+            
+            if(err) {
+                res.json({Message:"Error in finding users"})
+            }
 
-    // else{
-    //     //check if user exist
-    //     let sql = `select * from users where userName='${username}'`
-    //     conn.query(sql, (err,rows) =>{
-    //         if(err) {
-    //             res.json({Message:"Error in finding users"})
-    //         }
+            //hashCompare the password to the one in the database
+            const passwordIsFound = await bcrypt.compare(password, rows[0].userPassword)
+            if(!passwordIsFound) {
+                //user is not found 
+                res.json({Message:"Password does not match the database"})
+            }
 
-    //         res.send(rows)
-    //     })
-    // }
+            else{
+                res.json(rows)
+
+            }
+
+        })
+    }
 })
 
 
