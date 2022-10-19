@@ -548,18 +548,30 @@ app.post('/Apilogin', (req,res) =>{
             if(err) {
                 res.json({Message:"Error in finding users"})
             }
-
-            //hashCompare the password to the one in the database
-            const passwordIsFound = await bcrypt.compare(password, rows[0].userPassword)
-            if(!passwordIsFound) {
-                //user is not found 
-                res.json({Message:"Password does not match the database"})
-            }
-
             else{
-                res.json(rows)
 
+                try {
+
+                     //hashCompare the password to the one in the database
+                const passwordIsFound = await bcrypt.compare(password, rows[0].userPassword)
+                if(!passwordIsFound) {
+                    //user is not found 
+                    res.json({Message:"Password does not match the database"})
+                }
+
+                else{
+                    res.json(rows)
+
+                }
+                    
+                } catch (error) {
+                    console.log(error)
+                    
+                }
+                
             }
+
+           
 
         })
     }
