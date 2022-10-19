@@ -523,6 +523,49 @@ app.get('/api/:admin', (req,res)=>{
 })
 
 
+app.post('/Apilogin', (req,res) =>{
+    let userName = req.body.userName
+    let password = req.body.password;
+
+    
+    if(!userName) {
+        res.json({Message:"Enter username"})
+
+    }
+    else if(!password) {
+        res.json({Message:"Enter password"})
+
+    }
+
+    else{
+        //check if user exist
+        let sql = `select * from users where userName='${userName}'`
+        conn.query(sql, async(err,rows) =>{
+            if(rows.length == 0) {
+                res.json({Message:"Error in finding users"})
+            }
+            
+            if(err) {
+                res.json({Message:"Error in finding users"})
+            }
+
+            //hashCompare the password to the one in the database
+            const passwordIsFound = await bcrypt.compare(password, rows[0].userPassword)
+            if(!passwordIsFound) {
+                //user is not found 
+                res.json({Message:"Password does not match the database"})
+            }
+
+            else{
+                res.json(rows)
+
+            }
+
+        })
+    }
+})
+
+
 //function so the server doesent go to sleep
 setInterval(function () {
     conn.query('SELECT 1');
