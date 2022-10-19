@@ -613,6 +613,32 @@ app.get('/api/:admin/hours', (req,res) =>{
 })
 
 
+app.post('/login', (req,res) =>{
+    const {username, password} = req.body
+
+    if(!username) {
+        res.json({Message:"Enter username"})
+
+    }
+    else if(!password) {
+        res.json({Message:"Enter password"})
+
+    }
+
+    else{
+        //check if user exist
+        let sql = `select * from users where userName='${username}'`
+        conn.query(sql, (err,rows) =>{
+            if(err) {
+                res.json({Message:"Error in finding users"})
+            }
+
+            res.send(rows)
+        })
+    }
+})
+
+
 
 //function so the server doesent go to sleep
 setInterval(function () {
