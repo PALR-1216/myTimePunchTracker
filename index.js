@@ -613,29 +613,31 @@ app.get('/api/:admin/hours', (req,res) =>{
 })
 
 
-app.post('/login', (req,res) =>{
-    const {username, password} = req.body
+app.post('/Apilogin', (req,res) =>{
+    let userName = req.body.userName
+    let password = req.body.password;
+    res.json("dsdsdsd")
 
-    if(!username) {
-        res.json({Message:"Enter username"})
+    // if(!username) {
+    //     res.json({Message:"Enter username"})
 
-    }
-    else if(!password) {
-        res.json({Message:"Enter password"})
+    // }
+    // else if(!password) {
+    //     res.json({Message:"Enter password"})
 
-    }
+    // }
 
-    else{
-        //check if user exist
-        let sql = `select * from users where userName='${username}'`
-        conn.query(sql, (err,rows) =>{
-            if(err) {
-                res.json({Message:"Error in finding users"})
-            }
+    // else{
+    //     //check if user exist
+    //     let sql = `select * from users where userName='${username}'`
+    //     conn.query(sql, (err,rows) =>{
+    //         if(err) {
+    //             res.json({Message:"Error in finding users"})
+    //         }
 
-            res.send(rows)
-        })
-    }
+    //         res.send(rows)
+    //     })
+    // }
 })
 
 
