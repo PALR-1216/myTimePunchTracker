@@ -178,6 +178,12 @@ app.get('/registerUser', (req,res,next) =>{
 app.post('/registerNewUser', (req,res,next) =>{
     const saltRounds = 10;
 
+    let dateObj = new Date();
+        let year = dateObj.getFullYear().toString().slice(-2)
+        let month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
+        let date = ("0" + dateObj.getDate()).slice(-2);
+        let AllDate = year + "/" + month + "/" + date
+
     //TODO:check if user exist in the database if the email and username is the same
     //TODO:if not register user and hash the password
     let sql = `select * from users where userEmail = '${req.body.email}' or userName ='${req.body.username}'`
@@ -192,14 +198,14 @@ app.post('/registerNewUser', (req,res,next) =>{
                     if(err) throw err.message;
 
                     if(req.body.type == "half") {
-                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${1.5} )`
+                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime, DateAdded) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${1.5}, '${AllDate}' )`
                         conn.commit(sqlUsers)
 
 
                     }
 
                     else if(req.body.type == "double") {
-                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${2} )`
+                        let sqlUsers = `insert into users ( userName, userPassword, usersWage, usersDeduction, userEmail ,usersOvertime, DateAdded) values ( '${req.body.username}', '${hash}', ${req.body.wage}, ${req.body.deduction / 100 || null}, '${req.body.email}', ${2}, '${AllDate}' )`
                         conn.commit(sqlUsers)
 
                     }
