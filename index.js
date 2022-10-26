@@ -15,6 +15,8 @@ import bodyParser from 'body-parser'
 import path from 'path'
 import bcrypt from 'bcrypt'
 import cookieParser from 'cookie-parser'
+import jwt from 'jsonwebtoken';
+
 // import cookie from 'cookie-session'
 
 
@@ -581,6 +583,15 @@ app.post('/Apilogin', (req,res) =>{
 
         })
     }
+})
+
+
+app.get('/api/getUserHours', (req,res) =>{
+    let obj = {
+        userName: req.body.userName,
+        userId:req.body.userId
+    }
+    var token = jwt.sign({ myToken:  obj},'myToken');
 })
 
 
