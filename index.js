@@ -613,6 +613,101 @@ app.get('/api/:admin/hours', (req,res) =>{
     })
 })
 
+app.post("/api/AddHour", (req,res) =>{
+
+    let dateObj = new Date();
+    let year = dateObj.getFullYear().toString().slice(-2);
+    let month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
+    let date = ("0" + dateObj.getDate()).slice(-2);
+    let AllDate = year + "/" + month + "/" + date;
+
+    let sql = `select * from users where userId = '${req.body.userId}' and userName='${req.body.userName}'`;
+    conn.query(sql,(err,rows) =>{
+        if(err) throw err;
+
+        
+    })
+})
+
+
+
+
+// app.post('/addNewHour',(req,res,next) =>{
+//     let dateObj = new Date();
+//         let year = dateObj.getFullYear().toString().slice(-2)
+//         let month = ("0" + (dateObj.getMonth() + 1)).slice(-2);
+//         let date = ("0" + dateObj.getDate()).slice(-2);
+//         let AllDate = year + "/" + month + "/" + date
+
+//     if(req.cookies.user_id) {
+//         let sql = `select * from users where userName = '${req.cookies.user_id}'`;
+//         conn.query(sql,(err,rows) =>{
+//             if(err) throw err;
+
+
+//             if(req.body.hours && req.body.breakTime) {
+//                 if(req.body.type == "Hours"){
+//                     let totalHour = req.body.hours - req.body.breakTime
+//                     let totalAmount = totalHour * rows[0].usersWage
+//                     let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded, TotalEarned) values (${req.body.hours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
+//                     // res.json(sqlHours)
+//                     conn.query(sqlHours,(err,rows) =>{
+//                         console.error("Eror in adding hours")
+//                         if(err) throw err.message
+//                     })
+//                     res.redirect('/')
+    
+//                 }
+                
+    
+//                 else{
+//                     let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
+
+//                     let totalHour = req.body.hours - totalMinutes
+//                     let totalAmount = totalHour * rows[0].usersWage;
+//                     let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded,TotalEarned) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
+//                     conn.query(sqlMinutes, (err,rows) =>{
+//                         if(err) throw err;
+//                     })
+//                     res.redirect('/') 
+//                 }             
+//             }
+    
+//             else{
+//                 let sql =  `select * from users where userName ='${req.cookies.user_id}'`
+//                 conn.query(sql,(err,rows) =>{
+
+//                     if(req.body.hours > 5) {
+
+                        
+//                             if(err) throw err;
+//                             let overtimeWage = rows[0].usersOvertime * rows[0].usersWage
+//                             let extraHours = req.body.hours - 5;
+//                             let totalExtra = extraHours * overtimeWage;
+//                             let totalAmount = (5 * rows[0].usersWage) + totalExtra;
+//                             let addOversql = `insert into hours (totalHour, userId, dateAdded, overtimeHours, TotalEarned) values (${req.body.hours}, ${rows[0].userId}, '${AllDate}', ${extraHours}, ${totalAmount})`
+//                             conn.commit(addOversql);
+                    
+//                     }
+
+//                     else{
+//                         let total = req.body.hours * rows[0].usersWage;
+//                         let sqlNoBreak = `insert into hours(totalHour, userId, dateAdded, TotalEarned) values (${req.body.hours}, ${rows[0].userId}, '${AllDate}', ${total})`
+//                         conn.commit(sqlNoBreak)
+//                     }
+
+//             }) 
+
+//                 res.redirect('/')
+//             }
+//         })
+//     }
+
+//     else{
+//         res.redirect('/')
+//     }
+// }) 
+
 
 
 //function so the server doesent go to sleep
