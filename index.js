@@ -625,15 +625,15 @@ app.post("/api/AddHour", (req,res) =>{
     conn.query(sql,(err,rows) =>{
         if(err) throw err;
 
-        res.json(rows)
+        // res.json(rows)
 
-        if(req.body.BreakTime != null){
+        if(req.body.BreakTime){
 
-            if(req.body.Hours) {
-                let totalHour = req.body.totalHours - req.body.breakTime
+            if(req.body.Hours == true) {
+                let totalHour = req.body.totalHours - req.body.BreakTime
                 let totalAmount = totalHour * rows[0].usersWage
-                let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded, TotalEarned) values (${req.body.totalHours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
-                // res.json(sqlHours)
+                let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded, TotalEarned) values (${req.body.totalHours - req.body.BreakTime}, ${parseFloat(req.body.BreakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
+                res.json(sqlHours)
                 conn.query(sqlHours, (err, rows) => {
                     console.error("Eror in adding hours")
                     if (err) throw err.message
@@ -641,15 +641,17 @@ app.post("/api/AddHour", (req,res) =>{
 
             }
     
-            else if(req.body.Minutes) {
-                let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
+            else if(req.body.Hours == false){
+                let totalMinutes = parseFloat(req.body.BreakTime).toFixed(2) / 100
     
-                let totalHour = req.body.hours - totalMinutes
+                let totalHour = req.body.totalHours - totalMinutes
                 let totalAmount = totalHour * rows[0].usersWage;
-                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded,TotalEarned) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
-                conn.query(sqlMinutes, (err, rows) => {
-                        if (err) throw err;
-                 })
+                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded,TotalEarned) values (${req.body.totalHours - totalMinutes}, ${totalMinutes}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
+                res.json(sqlMinutes)
+
+                // conn.query(sqlMinutes, (err, rows) => {
+                //         if (err) throw err;
+                //  })
             }
         }
     })
