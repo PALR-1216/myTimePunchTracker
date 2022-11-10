@@ -627,6 +627,31 @@ app.post("/api/AddHour", (req,res) =>{
 
         res.json(rows)
 
+        if(req.body.BreakTime != null){
+
+            if(req.body.Hours) {
+                let totalHour = req.body.totalHours - req.body.breakTime
+                let totalAmount = totalHour * rows[0].usersWage
+                let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded, TotalEarned) values (${req.body.totalHours - req.body.breakTime}, ${parseFloat(req.body.breakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
+                // res.json(sqlHours)
+                conn.query(sqlHours, (err, rows) => {
+                    console.error("Eror in adding hours")
+                    if (err) throw err.message
+                })
+
+            }
+    
+            else if(req.body.Minutes) {
+                let totalMinutes = parseFloat(req.body.breakTime).toFixed(2) / 100
+    
+                let totalHour = req.body.hours - totalMinutes
+                let totalAmount = totalHour * rows[0].usersWage;
+                let sqlMinutes = `insert into hours (totalHour, totalBreakTime, userId, dateAdded,TotalEarned) values (${req.body.hours - totalMinutes}, ${totalMinutes}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
+                conn.query(sqlMinutes, (err, rows) => {
+                        if (err) throw err;
+                 })
+            }
+        }
     })
 })
 
