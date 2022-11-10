@@ -621,11 +621,12 @@ app.post("/api/AddHour", (req,res) =>{
     let date = ("0" + dateObj.getDate()).slice(-2);
     let AllDate = year + "/" + month + "/" + date;
 
-    let sql = `select * from users where userId = '${req.body.userId}' and userName='${req.body.userName}'`;
+    let sql = `select * from users where userId = '${req.body.userId}'`;
     conn.query(sql,(err,rows) =>{
         if(err) throw err;
 
-        
+        res.json(rows)
+
     })
 })
 
