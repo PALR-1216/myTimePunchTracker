@@ -629,7 +629,7 @@ app.post("/api/AddHour", (req,res) =>{
 
         if(req.body.BreakTime){
 
-            if(req.body. q == true) {
+            if(req.body.Hours == true) {
                 let totalHour = req.body.totalHours - req.body.BreakTime
                 let totalAmount = totalHour * rows[0].usersWage
                 let sqlHours = `insert into hours (totalHour, totalBreakTime, userId, dateAdded, TotalEarned) values (${req.body.totalHours - req.body.BreakTime}, ${parseFloat(req.body.BreakTime).toFixed(2)}, ${rows[0].userId}, '${AllDate}', ${totalAmount})`
