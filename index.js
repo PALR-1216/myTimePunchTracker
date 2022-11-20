@@ -703,7 +703,21 @@ app.post('/Apilogin', (req,res) =>{
                     }
 
                 else{
-                    res.json(rows)
+                    let obj;
+                    for(let i in rows) {
+                        obj = {
+                            Success:"True",
+                            userId:rows[0].userId,
+                            userName:rows[0].userName,
+                            usersWage:rows[0].usersWage,
+                            usersDeduction:rows[0].usersDeduction,
+                            userEmail:rows[0].userEmail,
+                            usersOvertime:rows[0].usersOvertime,
+                            DateAdded:rows[0].DateAdded,
+                            userPassword:rows[0].userPassword                        
+                        }
+                    }
+                    res.json(obj)
 
                 }
                     
