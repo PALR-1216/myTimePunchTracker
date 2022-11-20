@@ -718,6 +718,7 @@ app.post('/Apilogin', (req,res) =>{
                         }
                     }
                     res.json(obj)
+                    console.log(obj)
                 }
                     
                 } catch (error) {
