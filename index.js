@@ -685,11 +685,11 @@ app.post('/Apilogin', (req,res) =>{
         let sql = `select * from users where userName='${userName}'`
         conn.query(sql, async(err,rows) =>{
             if(rows.length == 0) {
-                res.json({Message:"Error in finding users"})
+                res.json({Message:"Error in finding users", Success:"False"})
             }
             
             if(err) {
-                res.json({Message:"Error in finding users"})
+                res.json({Message:"Error in finding users", Success:"False"})
             }
             else{
 
@@ -699,7 +699,7 @@ app.post('/Apilogin', (req,res) =>{
                     const passwordIsFound = await bcrypt.compare(password, rows[0].userPassword)
                     if(!passwordIsFound) {
                         //user is not found 
-                        res.json({Message:"Password does not match the database"})
+                        res.json({Message:"Password does not match the database", Success:"False"})
                     }
 
                 else{
@@ -718,7 +718,6 @@ app.post('/Apilogin', (req,res) =>{
                         }
                     }
                     res.json(obj)
-
                 }
                     
                 } catch (error) {
