@@ -700,6 +700,7 @@ app.post('/Apilogin', (req,res) =>{
                     if(!passwordIsFound) {
                         //user is not found 
                         res.json({Message:"Password does not match the database", Success:"False"})
+                        return 
                     }
 
                 else{
