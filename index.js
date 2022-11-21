@@ -717,7 +717,7 @@ app.post('/Apilogin', (req,res) =>{
                             userPassword:rows[0].userPassword                        
                         }
                     }
-                    res.json(obj)
+                    return res.json(obj)
                     console.log(obj)
                 }
                     
