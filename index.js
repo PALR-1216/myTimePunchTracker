@@ -735,14 +735,14 @@ app.post('/Apilogin', (req,res) =>{
 
 
 
-app.get('/api/getUserHours', (req,res) =>{
+app.get('/api/getUserHours/:userId', (req,res) =>{
     let obj = {
         userName: req.body.userName,
         userId:req.body.userId
     }
     // var token = jwt.sign({ myToken:  obj},'myToken');
     // let token = Jsontoken.sign({userId:req.params.userId}, "userId")
-    res.json(token)
+    // res.json(token)
 
     let sql = `select * from hours where userId = ${req.params.userId}`
     conn.query(sql,(err,rows) =>{
@@ -752,7 +752,7 @@ app.get('/api/getUserHours', (req,res) =>{
         }
 
       else{
-        // res.json(rows)
+        res.json(rows)
       }
     })
 })
