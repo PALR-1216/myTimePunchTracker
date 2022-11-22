@@ -705,9 +705,11 @@ app.post('/Apilogin', (req,res) =>{
 
                 else{
                     let obj;
+                    let token;
                     for(let i in rows) {
                         obj = {
                             Success:"True",
+                            Token:Jsontoken.sign({userId:rows[0].userId, userName:rows[0].userName}, "userData"),
                             userId:rows[0].userId,
                             userName:rows[0].userName,
                             usersWage:rows[0].usersWage,
@@ -733,13 +735,16 @@ app.post('/Apilogin', (req,res) =>{
 
 
 
-app.post('/api/getUserHours', (req,res) =>{
+app.get('/api/getUserHours', (req,res) =>{
     let obj = {
         userName: req.body.userName,
         userId:req.body.userId
     }
     // var token = jwt.sign({ myToken:  obj},'myToken');
-    let sql = `select * from hours where userId = ${req.body.userId}`
+    // let token = Jsontoken.sign({userId:req.params.userId}, "userId")
+    res.json(token)
+
+    let sql = `select * from hours where userId = ${req.params.userId}`
     conn.query(sql,(err,rows) =>{
         if(err) {
             throw err
@@ -747,7 +752,7 @@ app.post('/api/getUserHours', (req,res) =>{
         }
 
       else{
-        res.json(rows)
+        // res.json(rows)
       }
     })
 })
