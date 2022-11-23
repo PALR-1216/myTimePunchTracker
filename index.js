@@ -696,25 +696,45 @@ app.post('/Apilogin', (req, res) => {
                     } else {
                         let obj;
                         let token;
-                        for (let i in rows) {
-                            obj = {
-                                Success: "True",
-                                Token: Jsontoken.sign({
+                        var totalHours;
+                        let totalMoney;
+                        var totalNET;
+                        let wage = rows[0].usersWage;
+                        let deduction = rows[0].usersDeduction
+                        let id = rows[0].userId;
+
+
+                        let sql = `select * from hours where userId = ${rows[0].userId}`
+                        let sqlTotalHours = `select Format(SUM(totalHour),2) as SumHours from hours where userId=${id};`;
+                        conn.query(sqlTotalHours, (err, totalHours) => {
+                            totalHours = totalHours[0].SumHours;
+                            let totalEarned = totalHours * wage
+                            totalNET = totalEarned - (totalEarned * deduction)
+
+
+                            for (let i in rows) {
+                                obj = {
+                                    Success: "True",
+                                    TotalHours: totalHours,
+                                    TotalEarned: totalNET,
+                                    Token: Jsontoken.sign({
+                                        userId: rows[0].userId,
+                                        userName: rows[0].userName
+                                    }, "userData"),
                                     userId: rows[0].userId,
-                                    userName: rows[0].userName
-                                }, "userData"),
-                                userId: rows[0].userId,
-                                userName: rows[0].userName,
-                                usersWage: rows[0].usersWage,
-                                usersDeduction: rows[0].usersDeduction,
-                                userEmail: rows[0].userEmail,
-                                usersOvertime: rows[0].usersOvertime,
-                                DateAdded: rows[0].DateAdded,
-                                userPassword: rows[0].userPassword
+                                    userName: rows[0].userName,
+                                    usersWage: rows[0].usersWage,
+                                    usersDeduction: rows[0].usersDeduction,
+                                    userEmail: rows[0].userEmail,
+                                    usersOvertime: rows[0].usersOvertime,
+                                    DateAdded: rows[0].DateAdded,
+                                    userPassword: rows[0].userPassword
+                                }
                             }
-                        }
-                        res.json(obj)
-                        console.log(obj)
+                            res.json(obj)
+                            console.log(obj)
+
+                        })
                     }
 
                 } catch (error) {
@@ -744,14 +764,14 @@ app.get('/api/getUserHours/:userId', (req, res) => {
     let sqlUSerData = `select * from users where userId = ${req.params.userId}`
     let sqlTotalHours = `select Format(SUM(totalHour),2) as SumHours from hours where userId=${req.params.userId};`;
 
-                let sqlData = `SELECT * from hours where userId='${req.params.userId}'`
-                conn.query(sqlData, (err, rows) => {
+    let sqlData = `SELECT * from hours where userId='${req.params.userId}'`
+    conn.query(sqlData, (err, rows) => {
 
-                    if (err) throw err.message;
-                    // res.send(rows)
+        if (err) throw err.message;
+        // res.send(rows)
 
-                    res.json(rows)
-                })
+        res.json(rows)
+    })
 
 
 
