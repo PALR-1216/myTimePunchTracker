@@ -744,36 +744,17 @@ app.get('/api/getUserHours/:userId', (req, res) => {
     let sqlUSerData = `select * from users where userId = ${req.params.userId}`
     let sqlTotalHours = `select Format(SUM(totalHour),2) as SumHours from hours where userId=${req.params.userId};`;
 
-
-    conn.query(sqlUSerData, (err, userRow) => {
-        let usersDeduction = userRow[0].usersDeduction
-
-        conn.query(sqlTotalHours, (err, totalRows) => {
-            if (err) throw err;
-            totalHours = totalRows[0].SumHours;
-            let sqltotalMoney = `select SUM(TotalEarned) as totalMoney from hours where userId = ${req.params.userId};`
-
-            conn.query(sqltotalMoney, (err, totalMoney) => {
-                if (err) throw err.message;
-                totalEarned = totalMoney[0].totalMoney
-                totalNet = totalEarned - (totalEarned * usersDeduction)
-
                 let sqlData = `SELECT * from hours where userId='${req.params.userId}'`
                 conn.query(sqlData, (err, rows) => {
 
                     if (err) throw err.message;
                     // res.send(rows)
 
-                    res.json({
-                        TotalHours: totalHours,
-                        TotalNetTotal: totalNet,
-                        Hours: rows
-                    })
+                    res.json(rows)
                 })
-            })
-        })
 
-    })
+
+
 })
 
 
